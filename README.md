@@ -1,2 +1,2 @@
 # SQL-Queries
-#creating SQL qeuries for data analysis domain.
+#creating SQL queries for data analysis domain.
