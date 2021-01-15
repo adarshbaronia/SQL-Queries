@@ -1,0 +1,35 @@
+•	Write SQL code to compute the average time spent on the app (between when a user is active on app(app is opened) and goes away from the app(app runs in background) per visit
+o	Foreground - Live on app
+o	Background - App goes to background
+o	ts is in epoch timestamp
+
+ => Sample reference file of data structure: data_snippet.csv
+
+select ttt.visit, avg(ifnull(ttt.timediff,0)) as AverageTime
+from 
+(
+select tt.visit,tt.lead_dt,tt.dt, 
+case 
+  when tt.app_state = 'background' and tt.lead_app_st = 'foreground'
+ then Cast ((
+    JulianDay(tt.lead_dt) - JulianDay(tt.dt)
+) * 24 * 60 * 60 As Integer)
+  when tt.app_state = 'foreground' and tt.lead_app_st = 'foreground'
+ then Cast ((
+    JulianDay(tt.lead_dt) - JulianDay(tt.dt)
+) * 24 * 60 * 60 As Integer)
+  else '' end as "timediff"
+
+from 
+(select t.visit, t.app_state, 
+lead(t.app_state) over (partition by t.visit order by t.dt) as lead_app_st,
+t.dt, 
+lead(t.dt) over (partition by t.visit order by t.dt) as lead_dt 
+from 
+(select distinct visit, app_state, datetime(ts, 'unixepoch', 'localtime') as dt 
+ FROM demo3
+order by visit,dt)
+ T)
+  TT)
+  TTT
+group by ttt.visit
